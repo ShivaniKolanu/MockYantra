@@ -12,14 +12,30 @@ import ListItemText from "@mui/material/ListItemText";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import { Divider } from "@mui/material";
 
 const projects = ["Project 1", "Project 2", "Project 3"];
 const apis = ["API 1", "API 2"];
+type CurrentView = "dashboard" | "api" | "create-api";
 
-export default function MenuSidebar() {
-    const [selectedProject, setSelectedProject] = useState<string | null>(null);
-    const [selectedApi, setSelectedApi] = useState<string | null>(null);
+type MenuSidebarProps = {
+    selectedProject: string | null;
+    selectedApi: string | null;
+    getSelectedProject: (project: string | null) => void;
+    getSelectedApi: (api: string | null) => void;
+    currentView: CurrentView;
+    getCurrentView: (view: CurrentView) => void;
+};
+
+export default function MenuSidebar({
+    selectedProject,
+    selectedApi,
+    getSelectedProject,
+    getSelectedApi,
+    currentView,
+    getCurrentView,
+}: MenuSidebarProps) {
 
     return(
         <Drawer
@@ -28,13 +44,13 @@ export default function MenuSidebar() {
                 position: "fixed",
                 left: 0,
                 top: "64px",
-                width: 280,
+                width: 180,
                 height: "calc(100vh - 64px)",
                 "& .MuiDrawer-paper": {
                     position: "fixed",
                     left: 0,
                     top: "64px",
-                    width: 280,
+                    width: 240,
                     height: "calc(100vh - 64px)",
                     background: "rgba(36, 37, 72, 0.5)",
                     backdropFilter: "blur(12px)",
@@ -43,6 +59,45 @@ export default function MenuSidebar() {
                 }
             }}
         >
+            <ListItem disablePadding sx={{ px: 1, pt: 2, pb: 1.5 }}>
+                <ListItemButton
+                    selected={currentView === "dashboard"}
+                    onClick={() => {
+                        getSelectedProject(null);
+                        getSelectedApi(null);
+                        getCurrentView("dashboard");
+                    }}
+                    sx={{
+                        borderRadius: 1.5,
+                        color: "inherit",
+                        "&:hover": {
+                            backgroundColor: "rgba(255, 255, 255, 0.12)",
+                        },
+                        "&:active": {
+                            backgroundColor: "rgba(255, 255, 255, 0.18)",
+                        },
+                        "&.Mui-selected": {
+                            backgroundColor: "rgba(255, 255, 255, 0.2)",
+                            color: "#FFFFFF",
+                        },
+                        "&.Mui-selected:hover": {
+                            backgroundColor: "rgba(255, 255, 255, 0.24)",
+                        },
+                    }}
+                >
+                    <ListItemIcon sx={{ minWidth: 34, color: "inherit" }}>
+                        <DashboardIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary="Dashboard"
+                        primaryTypographyProps={{
+                            fontSize: "1.05rem",
+                            fontWeight: 600,
+                        }}
+                    />
+                </ListItemButton>
+            </ListItem>
+            <Divider sx={{ borderBottomWidth: 2, borderColor: "rgba(255, 255, 255, 0.28)" }} />
             <List sx={{ px: 1, py: 2 }}>
                 {projects.map((project) => (
                     <ListItem key={project} disablePadding sx={{ display: "block", mb: 1 }}>
@@ -75,7 +130,11 @@ export default function MenuSidebar() {
                                         backgroundColor: "rgba(255, 255, 255, 0.22)",
                                     },
                                 }}
-                                onClick={() => setSelectedProject(project)}
+                                onClick={() => {
+                                    getSelectedProject(project);
+                                    getSelectedApi(null);
+                                    getCurrentView("dashboard");
+                                }}
                             >
                                 <ListItemIcon sx={{ minWidth: 34, color: "inherit" }}>
                                     <RocketLaunchIcon fontSize="small" />
@@ -101,11 +160,16 @@ export default function MenuSidebar() {
                                     {apis.map((api) => (
                                         <ListItem key={`${project}-${api}`} disablePadding>
                                             <ListItemButton
-                                                selected={selectedApi === `${project}-${api}`}
                                                 onClick={() => {
-                                                    setSelectedProject(project);
-                                                    setSelectedApi(`${project}-${api}`);
+                                                    getSelectedProject(project);
+                                                    getSelectedApi(api);
+                                                    getCurrentView("api");
                                                 }}
+                                                selected={
+                                                    currentView === "api" &&
+                                                    selectedProject === project &&
+                                                    selectedApi === api
+                                                }
                                                 sx={{
                                                     pl: 6,
                                                     borderRadius: 1.5,
@@ -135,7 +199,12 @@ export default function MenuSidebar() {
                                                     }}
                                                     primaryTypographyProps={{
                                                         fontSize: "1.02rem",
-                                                        fontWeight: selectedApi === `${project}-${api}` ? 600 : 500,
+                                                        fontWeight:
+                                                            currentView === "api" &&
+                                                            selectedProject === project &&
+                                                            selectedApi === api
+                                                                ? 600
+                                                                : 500,
                                                     }}
                                                 />
                                             </ListItemButton>
@@ -144,6 +213,12 @@ export default function MenuSidebar() {
 
                                     <ListItem disablePadding sx={{ mt: 0.5 }}>
                                         <ListItemButton
+                                            selected={currentView === "create-api" && selectedProject === project}
+                                            onClick={() => {
+                                                getSelectedProject(project);
+                                                getSelectedApi(null);
+                                                getCurrentView("create-api");
+                                            }}
                                             sx={{
                                                 pl: 4.5,
                                                 borderRadius: 1.5,
@@ -156,6 +231,14 @@ export default function MenuSidebar() {
                                                 },
                                                 "&:active": {
                                                     backgroundColor: "rgba(255, 255, 255, 0.18)",
+                                                },
+                                                "&.Mui-selected": {
+                                                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                                                    borderColor: "rgba(255, 255, 255, 0.45)",
+                                                    color: "#FFFFFF",
+                                                },
+                                                "&.Mui-selected:hover": {
+                                                    backgroundColor: "rgba(255, 255, 255, 0.24)",
                                                 },
                                             }}
                                         >

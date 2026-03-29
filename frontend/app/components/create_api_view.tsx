@@ -8,6 +8,7 @@ import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import VisualBuilder from "./visual_builder";
 import AiGeneratorView from "./ai_generator_view";
+import CreateUsingCurlView from "./create_using_curl_view";
 
 type CreateApiViewProps = {
   project: string;
@@ -73,11 +74,7 @@ export default function CreateApiView({ project }: CreateApiViewProps) {
           {activeTab === 1 && (
             <VisualBuilder />
           )}
-          {activeTab === 2 && (
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.86)" }}>
-              Create using cURL tab content placeholder.
-            </Typography>
-          )}
+          {activeTab === 2 && <CreateUsingCurlView />}
         </Box>
       </Box>
     </Box>

@@ -16,6 +16,8 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Stepper from "@mui/material/Stepper";
 import TextField from "@mui/material/TextField";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -55,6 +57,8 @@ export default function VisualBuilder() {
   const [recordCount, setRecordCount] = useState("100");
   const [nullRate, setNullRate] = useState("5");
   const [locale, setLocale] = useState("en-US");
+  const [dataMode, setDataMode] = useState<"manual" | "prompt">("manual");
+  const [dataPrompt, setDataPrompt] = useState("");
 
   const requestBodyEnabled = useMemo(() => {
     return method === "POST" || method === "PUT" || method === "PATCH";
@@ -343,38 +347,86 @@ export default function VisualBuilder() {
 
       {activeStep === 1 && (
         <Stack spacing={2.5}>
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>
-            Data Generation Preferences (Manual)
-          </Typography>
+          <Box>
+            <Typography sx={{ color: "#FFFFFF", fontWeight: 700, mb: 0.8 }}>Data Generation Preferences</Typography>
+            <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", mb: 1.4, fontSize: "0.92rem" }}>
+              Choose Manual for explicit controls, or Prompt to describe your dataset in plain language.
+            </Typography>
 
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <ToggleButtonGroup
+              exclusive
+              fullWidth
+              value={dataMode}
+              onChange={(_, value: "manual" | "prompt" | null) => {
+                if (value) {
+                  setDataMode(value);
+                }
+              }}
+              sx={{
+                mb: 1.5,
+                "& .MuiToggleButton-root": {
+                  textTransform: "none",
+                  fontWeight: 700,
+                  color: "#E8E3FF",
+                  borderColor: "rgba(207, 199, 255, 0.4)",
+                  py: 0.9,
+                },
+                "& .MuiToggleButton-root.Mui-selected": {
+                  color: "#F8F6FF",
+                  backgroundColor: "#8C79D8",
+                  borderColor: "#8C79D8",
+                },
+                "& .MuiToggleButton-root.Mui-selected:hover": {
+                  backgroundColor: "#7B67CC",
+                },
+              }}
+            >
+              <ToggleButton value="manual">Manual</ToggleButton>
+              <ToggleButton value="prompt">Prompt</ToggleButton>
+            </ToggleButtonGroup>
+
+            {dataMode === "manual" ? (
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    fullWidth
+                    label="How many records?"
+                    value={recordCount}
+                    onChange={(e) => setRecordCount(e.target.value)}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    fullWidth
+                    label="Null Value %"
+                    value={nullRate}
+                    onChange={(e) => setNullRate(e.target.value)}
+                    helperText="Example: 0 to 30"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    fullWidth
+                    label="Locale"
+                    value={locale}
+                    onChange={(e) => setLocale(e.target.value)}
+                    helperText="Example: en-US"
+                  />
+                </Grid>
+              </Grid>
+            ) : (
               <TextField
                 fullWidth
-                label="How many records?"
-                value={recordCount}
-                onChange={(e) => setRecordCount(e.target.value)}
+                multiline
+                minRows={5}
+                label="Data generation prompt"
+                value={dataPrompt}
+                onChange={(e) => setDataPrompt(e.target.value)}
+                placeholder="Generate realistic ecommerce orders with customer profile, product categories, discounts, and shipping status"
+                helperText="Describe the shape and realism of data you want."
               />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                fullWidth
-                label="Null Value %"
-                value={nullRate}
-                onChange={(e) => setNullRate(e.target.value)}
-                helperText="Example: 0 to 30"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <TextField
-                fullWidth
-                label="Locale"
-                value={locale}
-                onChange={(e) => setLocale(e.target.value)}
-                helperText="Example: en-US"
-              />
-            </Grid>
-          </Grid>
+            )}
+          </Box>
         </Stack>
       )}
 

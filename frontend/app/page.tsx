@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Typography from "@mui/material/Typography";
 import Header from "./components/header";
 import MenuSidebar from "./components/menu_sidebar";
@@ -10,10 +10,58 @@ import CreateApiView from "./components/create_api_view";
 
 type CurrentView = "dashboard" | "api" | "create-api";
 
+type ProjectSummary = {
+  id: string;
+  name: string;
+  apis: Array<{
+    id: string;
+    name: string;
+  }>;
+};
+
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedApi, setSelectedApi] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<CurrentView>("dashboard");
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch("/api/projects");
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as ProjectSummary[];
+        setProjects(data);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, [selectedProject, selectedApi]);
+
+  const selectedProjectName = useMemo(() => {
+    if (!selectedProject) {
+      return null;
+    }
+
+    const project = projects.find((item) => item.id === selectedProject);
+    return project?.name ?? selectedProject;
+  }, [projects, selectedProject]);
+
+  const selectedApiName = useMemo(() => {
+    if (!selectedProject || !selectedApi) {
+      return null;
+    }
+
+    const project = projects.find((item) => item.id === selectedProject);
+    const api = project?.apis.find((item) => item.id === selectedApi);
+    return api?.name ?? selectedApi;
+  }, [projects, selectedProject, selectedApi]);
 
   const getSelectedProject = (project: string | null) => {
     setSelectedProject(project);
@@ -38,15 +86,15 @@ export default function Home() {
         currentView={currentView}
         getCurrentView={getCurrentView}
       />
-      <main style={{ paddingTop: "64px", paddingLeft: "240px" }}>
+      <main style={{ paddingTop: "84px", paddingLeft: "240px" }}>
         {currentView === "dashboard" && <DashboardView />}
 
         {currentView === "api" && selectedProject && selectedApi && (
-          <ApiView project={selectedProject} api={selectedApi} />
+          <ApiView project={selectedProjectName ?? selectedProject} api={selectedApiName ?? selectedApi} />
         )}
 
         {currentView === "create-api" && selectedProject && (
-          <CreateApiView project={selectedProject} />
+          <CreateApiView project={selectedProjectName ?? selectedProject} />
         )}
 
         {((currentView === "api" && (!selectedProject || !selectedApi)) ||

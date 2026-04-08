@@ -18,6 +18,29 @@ export default function Header() {
         setIsAddProjectOpen(false);
     };
 
+    const handleCreateProject = async (payload: {
+        name: string;
+        description: string;
+        baseUrl: string;
+    }) => {
+        try {
+            const response = await fetch("/api/projects", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                alert("Failed to create project");
+                return;
+            }
+
+            window.location.reload();
+        } catch {
+            alert("Error creating project");
+        }
+    };
+
     return (
         <>
             <Box
@@ -40,9 +63,22 @@ export default function Header() {
                     zIndex: 1000,
                 }}
             >
-                <Typography variant="h6" component="h1" sx={{ color: "#F4F2FF", fontWeight: 600 }}>
-                    MockYantra
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.05 }}>
+                    <Box
+                        component="img"
+                        src="/icon.png"
+                        alt="MockYantra icon"
+                        sx={{
+                            width: 112,
+                            height: 44,
+                            objectFit: "cover",
+                            objectPosition: "center",
+                        }}
+                    />
+                    <Typography variant="h6" component="h1" sx={{ color: "#F4F2FF", fontWeight: 700, fontSize: "1.45rem" }}>
+                        MockYantra
+                    </Typography>
+                </Box>
 
                 <Button
                     variant="contained"
@@ -64,7 +100,7 @@ export default function Header() {
                 </Button>
             </Box>
 
-            <AddProjectModal open={isAddProjectOpen} onClose={handleCloseAddProject} />
+            <AddProjectModal open={isAddProjectOpen} onClose={handleCloseAddProject} onCreate={handleCreateProject} />
         </>
     );
 }

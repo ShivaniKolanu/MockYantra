@@ -11,17 +11,18 @@ import AiGeneratorView from "./ai_generator_view";
 import CreateUsingCurlView from "./create_using_curl_view";
 
 type CreateApiViewProps = {
-  project: string;
+  projectId: string;
+  projectName: string;
 };
 
-export default function CreateApiView({ project }: CreateApiViewProps) {
+export default function CreateApiView({ projectId, projectName }: CreateApiViewProps) {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
     <Box sx={{ px: 4, py: 3 }}>
       <Breadcrumbs aria-label="breadcrumb" separator="/" sx={{ color: "#F4F2FF" }}>
         <Typography sx={{ color: "rgba(244, 242, 255, 0.82)", fontWeight: 500 }}>
-          {project}
+          {projectName}
         </Typography>
         <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Create New API</Typography>
       </Breadcrumbs>
@@ -70,7 +71,7 @@ export default function CreateApiView({ project }: CreateApiViewProps) {
         </Tabs>
 
         <Box sx={{ p: 3 }}>
-          {activeTab === 0 && <AiGeneratorView />}
+          {activeTab === 0 && <AiGeneratorView projectId={projectId} />}
           {activeTab === 1 && (
             <VisualBuilder />
           )}

@@ -94,7 +94,10 @@ export default function Home() {
         )}
 
         {currentView === "create-api" && selectedProject && (
-          <CreateApiView project={selectedProjectName ?? selectedProject} />
+          <CreateApiView
+            projectId={selectedProject}
+            projectName={selectedProjectName ?? selectedProject}
+          />
         )}
 
         {((currentView === "api" && (!selectedProject || !selectedApi)) ||

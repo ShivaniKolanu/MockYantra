@@ -14,7 +14,7 @@ import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import { Divider } from "@mui/material";
+import { Chip, Divider, Stack } from "@mui/material";
 
 type CurrentView = "dashboard" | "api" | "create-api";
 
@@ -25,12 +25,13 @@ type MenuSidebarProps = {
     getSelectedApi: (api: string | null) => void;
     currentView: CurrentView;
     getCurrentView: (view: CurrentView) => void;
+    refreshKey?: number;
 };
 
 type Project = {
     id: string;
     name: string;
-    apis: Array<{ id: string; name: string }>;
+    apis: Array<{ id: string; name: string; isActive?: boolean }>;
 };
 
 export default function MenuSidebar({
@@ -40,6 +41,7 @@ export default function MenuSidebar({
     getSelectedApi,
     currentView,
     getCurrentView,
+    refreshKey = 0,
 }: MenuSidebarProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function MenuSidebar({
         };
 
         fetchProjects();
-    }, []);
+    }, [refreshKey]);
 
     return (
         <Drawer
@@ -231,6 +233,24 @@ export default function MenuSidebar({
                                                             fontWeight: currentView === "api" && selectedProject === project.id && selectedApi === api.id ? 600 : 500,
                                                         }}
                                                     />
+                                                    <Stack direction="row" alignItems="center" sx={{ ml: 1 }}>
+                                                        <Chip
+                                                            size="small"
+                                                            label={api.isActive ? "Active" : "Inactive"}
+                                                            sx={{
+                                                                height: 20,
+                                                                fontSize: "0.68rem",
+                                                                fontWeight: 700,
+                                                                color: api.isActive ? "#dcfce7" : "#fee2e2",
+                                                                backgroundColor: api.isActive
+                                                                    ? "rgba(34, 197, 94, 0.24)"
+                                                                    : "rgba(239, 68, 68, 0.24)",
+                                                                border: api.isActive
+                                                                    ? "1px solid rgba(34, 197, 94, 0.45)"
+                                                                    : "1px solid rgba(239, 68, 68, 0.45)",
+                                                            }}
+                                                        />
+                                                    </Stack>
                                                 </ListItemButton>
                                             </ListItem>
                                         ))}

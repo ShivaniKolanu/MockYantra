@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 
 type AddProjectPayload = {
   name: string;
+  projectCode: string;
   description: string;
   baseUrl: string;
 };
@@ -22,13 +23,16 @@ type AddProjectModalProps = {
 
 export default function AddProjectModal({ open, onClose, onCreate }: AddProjectModalProps) {
   const [name, setName] = useState("");
+  const [projectCode, setProjectCode] = useState("");
   const [description, setDescription] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
 
   const isNameValid = useMemo(() => name.trim().length > 0, [name]);
+  const isProjectCodeValid = useMemo(() => /^[a-z0-9-]+$/.test(projectCode.trim()), [projectCode]);
 
   const resetForm = () => {
     setName("");
+    setProjectCode("");
     setDescription("");
     setBaseUrl("");
   };
@@ -39,12 +43,13 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
   };
 
   const handleCreate = () => {
-    if (!isNameValid) {
+    if (!isNameValid || !isProjectCodeValid) {
       return;
     }
 
     onCreate?.({
       name: name.trim(),
+      projectCode: projectCode.trim().toLowerCase(),
       description: description.trim(),
       baseUrl: baseUrl.trim(),
     });
@@ -106,6 +111,22 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
 
           <TextField
             fullWidth
+            required
+            label="Project ID"
+            value={projectCode}
+            onChange={(event) => setProjectCode(event.target.value.toLowerCase())}
+            error={!isProjectCodeValid && projectCode.length > 0}
+            helperText={!isProjectCodeValid && projectCode.length > 0 ? "Use lowercase letters, numbers, and hyphens only" : "Used in URL: api.mockyantra.dev/<project-id>/<api-path>"}
+            placeholder="school-core"
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          />
+
+          <TextField
+            fullWidth
             label="Project Description"
             multiline
             minRows={3}
@@ -151,7 +172,7 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
             </Button>
             <Button
               variant="contained"
-              disabled={!isNameValid}
+              disabled={!isNameValid || !isProjectCodeValid}
               onClick={handleCreate}
               sx={{
                 textTransform: "none",

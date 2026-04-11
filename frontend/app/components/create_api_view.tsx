@@ -73,7 +73,7 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
         <Box sx={{ p: 3 }}>
           {activeTab === 0 && <AiGeneratorView projectId={projectId} />}
           {activeTab === 1 && (
-            <VisualBuilder />
+            <VisualBuilder projectId={projectId} />
           )}
           {activeTab === 2 && <CreateUsingCurlView />}
         </Box>

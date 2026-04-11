@@ -33,9 +33,29 @@ type ResponseRow = {
   body: string;
 };
 
+type VisualBuilderProps = {
+  projectId: string;
+};
+
+type SubmissionStatus = {
+  kind: "success" | "error";
+  title: string;
+  message: string;
+  apiName?: string;
+  method?: string;
+  endpoint?: string;
+};
+
 const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 
-export default function VisualBuilder() {
+function parseFieldList(raw: string): string[] {
+  return raw
+    .split(/[\n,]/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+export default function VisualBuilder({ projectId }: VisualBuilderProps) {
   const [activeStep, setActiveStep] = useState(0);
 
   const [apiName, setApiName] = useState("");
@@ -59,6 +79,9 @@ export default function VisualBuilder() {
   const [locale, setLocale] = useState("en-US");
   const [dataMode, setDataMode] = useState<"manual" | "prompt">("manual");
   const [dataPrompt, setDataPrompt] = useState("");
+  const [fields, setFields] = useState("id, name, email");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
 
   const requestBodyEnabled = useMemo(() => {
     return method === "POST" || method === "PUT" || method === "PATCH";
@@ -103,6 +126,76 @@ export default function VisualBuilder() {
         return { ...row, [field]: value };
       })
     );
+  };
+
+  const handleCreateApi = async () => {
+    if (!apiName.trim() || !endpoint.trim()) {
+      setSubmissionStatus({
+        kind: "error",
+        title: "Missing Required Fields",
+        message: "API Name and Endpoint are required.",
+      });
+      return;
+    }
+
+    const fieldNames = parseFieldList(fields);
+    const properties = Object.fromEntries(
+      fieldNames.map((fieldName) => [fieldName, { type: "string" }])
+    );
+
+    setSubmissionStatus(null);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/apis`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mode: "manual",
+          name: apiName.trim(),
+          method,
+          endpointPath: endpoint.trim(),
+          description: description.trim() || undefined,
+          recordCount: Math.min(100, Math.max(1, Number(recordCount) || 10)),
+          responseSchema: {
+            type: "object",
+            properties,
+            required: fieldNames,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setSubmissionStatus({
+          kind: "error",
+          title: "API Creation Failed",
+          message: data.error ?? "Failed to create API.",
+        });
+        return;
+      }
+
+      setSubmissionStatus({
+        kind: "success",
+        title: "API Created Successfully",
+        message: "Your API was created and is available in this project.",
+        apiName: data.name,
+        method: data.method,
+        endpoint: data.endpoint,
+      });
+    } catch (error) {
+      console.error("Error creating API from visual builder:", error);
+      setSubmissionStatus({
+        kind: "error",
+        title: "Unexpected Error",
+        message: "Something went wrong while creating the API.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -353,6 +446,16 @@ export default function VisualBuilder() {
               Choose Manual for explicit controls, or Prompt to describe your dataset in plain language.
             </Typography>
 
+            <TextField
+              fullWidth
+              label="Fields"
+              value={fields}
+              onChange={(e) => setFields(e.target.value)}
+              placeholder="id, name, email"
+              helperText="Comma or newline separated field names for response schema"
+              sx={{ mb: 1.5 }}
+            />
+
             <ToggleButtonGroup
               exclusive
               fullWidth
@@ -470,6 +573,8 @@ export default function VisualBuilder() {
         ) : (
           <Button
             variant="contained"
+            onClick={handleCreateApi}
+            disabled={isSubmitting}
             sx={{
               textTransform: "none",
               backgroundColor: "#8C79D8",
@@ -479,10 +584,55 @@ export default function VisualBuilder() {
               },
             }}
           >
-            Create API & Generate
+            {isSubmitting ? "Creating..." : "Create API & Generate"}
           </Button>
         )}
       </Stack>
+
+      {submissionStatus && (
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 2,
+            p: 1.6,
+            borderRadius: 1.5,
+            border:
+              submissionStatus.kind === "success"
+                ? "1px solid rgba(123, 220, 195, 0.45)"
+                : "1px solid rgba(255, 143, 163, 0.45)",
+            background:
+              submissionStatus.kind === "success"
+                ? "rgba(16, 61, 52, 0.35)"
+                : "rgba(86, 29, 45, 0.35)",
+          }}
+        >
+          <Typography
+            sx={{
+              color: submissionStatus.kind === "success" ? "#BDF7E6" : "#FFC1CF",
+              fontWeight: 700,
+              fontSize: "0.98rem",
+              mb: 0.5,
+            }}
+          >
+            {submissionStatus.title}
+          </Typography>
+
+          <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.92rem" }}>
+            {submissionStatus.message}
+          </Typography>
+
+          {submissionStatus.kind === "success" && (
+            <Box sx={{ mt: 1 }}>
+              <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.88rem" }}>
+                Name: {submissionStatus.apiName}
+              </Typography>
+              <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.88rem" }}>
+                Route: {submissionStatus.method} {submissionStatus.endpoint}
+              </Typography>
+            </Box>
+          )}
+        </Paper>
+      )}
     </Paper>
   );
 }

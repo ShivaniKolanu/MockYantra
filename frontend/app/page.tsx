@@ -24,6 +24,7 @@ export default function Home() {
   const [selectedApi, setSelectedApi] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<CurrentView>("dashboard");
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -75,6 +76,10 @@ export default function Home() {
     setCurrentView(view);
   };
 
+  const handleHostingStatusChanged = () => {
+    setSidebarRefreshKey((prev) => prev + 1);
+  };
+
   return (
     <>
       <Header />
@@ -85,12 +90,18 @@ export default function Home() {
         getSelectedApi={getSelectedApi}
         currentView={currentView}
         getCurrentView={getCurrentView}
+        refreshKey={sidebarRefreshKey}
       />
       <main style={{ paddingTop: "84px", paddingLeft: "240px" }}>
         {currentView === "dashboard" && <DashboardView />}
 
         {currentView === "api" && selectedProject && selectedApi && (
-          <ApiView project={selectedProjectName ?? selectedProject} api={selectedApiName ?? selectedApi} />
+          <ApiView
+            project={selectedProjectName ?? selectedProject}
+            api={selectedApiName ?? selectedApi}
+            apiId={selectedApi}
+            onHostingStatusChanged={handleHostingStatusChanged}
+          />
         )}
 
         {currentView === "create-api" && selectedProject && (

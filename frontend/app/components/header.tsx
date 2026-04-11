@@ -20,6 +20,7 @@ export default function Header() {
 
     const handleCreateProject = async (payload: {
         name: string;
+        projectCode: string;
         description: string;
         baseUrl: string;
     }) => {

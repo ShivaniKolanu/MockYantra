@@ -15,6 +15,7 @@ datasource db {
   model Project {
     id        String   @id @default(cuid())
     name      String
+    projectCode String?
     description String?
     baseUrl   String?
     createdAt DateTime @default(now())
@@ -30,6 +31,7 @@ datasource db {
     name        String
     endpoint    String
     method      String   @default("GET")
+    isActive    Boolean  @default(false)
     description String?
     responseSchema Json?
     createdAt   DateTime @default(now())

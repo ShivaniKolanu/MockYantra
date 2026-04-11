@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import CircularProgress from "@mui/material/CircularProgress";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import Table from "@mui/material/Table";
@@ -19,46 +22,47 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
-type ApiViewProps = {
-  project: string;
-  api: string;
-};
-
-type MockUser = {
-  id: number;
+type ApiData = {
+  id: string;
   name: string;
-  email: string;
-  role: string;
-  city: string;
+  method: string;
+  endpoint: string;
+  isActive: boolean;
+  description: string | null;
+  responseSchema: {
+    schema: Record<string, unknown>;
+    sampleData: Record<string, unknown>[];
+    endpointPath: string;
+  } | null;
   createdAt: string;
 };
 
-const ROLES = ["admin", "editor", "viewer", "analyst"];
-const CITIES = ["Bengaluru", "Pune", "Hyderabad", "Mumbai", "Delhi", "Chennai"];
+type ApiViewProps = {
+  project: string;
+  api: string;
+  apiId: string;
+  onHostingStatusChanged?: () => void;
+};
 
-function buildMockUsers(total: number): MockUser[] {
-  return Array.from({ length: total }, (_, index) => {
-    const id = index + 1;
-    const role = ROLES[index % ROLES.length];
-    const city = CITIES[index % CITIES.length];
-    return {
-      id,
-      name: `User ${id}`,
-      email: `user${id}@mockyantra.dev`,
-      role,
-      city,
-      createdAt: `2026-03-${String((index % 28) + 1).padStart(2, "0")}`,
-    };
-  });
+const METHOD_COLORS: Record<string, { bg: string; color: string }> = {
+  GET: { bg: "#4ade80", color: "#052e16" },
+  POST: { bg: "#60a5fa", color: "#0c1a2e" },
+  PUT: { bg: "#fbbf24", color: "#1c1407" },
+  PATCH: { bg: "#c084fc", color: "#1a0b2e" },
+  DELETE: { bg: "#f87171", color: "#1c0404" },
+};
+
+function getMethodStyle(method: string) {
+  return METHOD_COLORS[method.toUpperCase()] ?? { bg: "#CFC7FF", color: "#1D163C" };
 }
 
 function getCodeSnippets(endpoint: string, method: string) {
   return {
-    curl: `curl -X ${method} "${endpoint}" -H "Authorization: Bearer <token>" -H "Content-Type: application/json"`,
+    curl: `curl -X ${method} "${endpoint}" \\
+  -H "Content-Type: application/json"`,
     fetch: `const response = await fetch("${endpoint}", {
   method: "${method}",
   headers: {
-    "Authorization": "Bearer <token>",
     "Content-Type": "application/json"
   }
 });
@@ -71,7 +75,6 @@ const { data } = await axios({
   method: "${method.toLowerCase()}",
   url: "${endpoint}",
   headers: {
-    Authorization: "Bearer <token>",
     "Content-Type": "application/json"
   }
 });
@@ -80,26 +83,75 @@ console.log(data);`,
     python: `import requests
 
 url = "${endpoint}"
-headers = {
-    "Authorization": "Bearer <token>",
-    "Content-Type": "application/json"
-}
+headers = {"Content-Type": "application/json"}
 
 response = requests.request("${method}", url, headers=headers)
 print(response.json())`,
   };
 }
 
-export default function ApiView({ project, api }: ApiViewProps) {
-  const endpoint = `https://api.mockyantra.dev/${api.toLowerCase().replace(/\s+/g, "-")}`;
-  const method = "GET";
+type FetchResult = {
+  error: string | null;
+  apiData: ApiData | null;
+  visibleCount: number;
+};
 
-  const allRows = useMemo(() => buildMockUsers(1000), []);
-  const [visibleCount, setVisibleCount] = useState(50);
+const INITIAL_FETCH: FetchResult = { error: null, apiData: null, visibleCount: 50 };
+
+export default function ApiView({ project, api, apiId, onHostingStatusChanged }: ApiViewProps) {
+  const [fetchedForId, setFetchedForId] = useState<string | null>(null);
+  const [fetchResult, setFetchResult] = useState<FetchResult>(INITIAL_FETCH);
   const [snippetTab, setSnippetTab] = useState(0);
+  const [toggleLoading, setToggleLoading] = useState(false);
+  const [toggleError, setToggleError] = useState<string | null>(null);
 
-  const visibleRows = allRows.slice(0, visibleCount);
-  const snippets = useMemo(() => getCodeSnippets(endpoint, method), [endpoint]);
+  // Derived — avoids any synchronous setState in the effect body
+  const loading = fetchedForId !== apiId;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`/api/apis/${apiId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load API details");
+        return res.json() as Promise<ApiData>;
+      })
+      .then((data) => {
+        if (!cancelled) {
+          setFetchResult({ error: null, apiData: data, visibleCount: 50 });
+          setFetchedForId(apiId);
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setFetchResult({
+            error: err instanceof Error ? err.message : "Unknown error",
+            apiData: null,
+            visibleCount: 50,
+          });
+          setFetchedForId(apiId);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apiId]);
+
+  const { error, apiData, visibleCount } = fetchResult;
+  const sampleData = apiData?.responseSchema?.sampleData ?? [];
+  const columns = sampleData.length > 0 ? Object.keys(sampleData[0]) : [];
+  const visibleRows = sampleData.slice(0, visibleCount);
+  const endpoint = apiData?.endpoint ?? "";
+  const method = apiData?.method ?? "GET";
+  const methodStyle = getMethodStyle(method);
+  const endpointPath = apiData?.responseSchema?.endpointPath ?? "";
+  const runtimeUrl =
+    typeof window !== "undefined" && endpointPath
+      ? `${window.location.origin}${endpointPath}`
+      : endpointPath;
+
+  const snippets = useMemo(() => getCodeSnippets(endpoint, method), [endpoint, method]);
   const snippetItems = [
     { label: "cURL", code: snippets.curl },
     { label: "Fetch", code: snippets.fetch },
@@ -107,23 +159,73 @@ export default function ApiView({ project, api }: ApiViewProps) {
     { label: "Python", code: snippets.python },
   ];
 
+  const activeSnippet = snippetItems[snippetTab];
+
   const handleTableScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget;
     const nearBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 40;
-    if (nearBottom && visibleCount < allRows.length) {
-      setVisibleCount((prev) => Math.min(prev + 50, allRows.length));
+    if (nearBottom && visibleCount < sampleData.length) {
+        setFetchResult((prev) => ({
+          ...prev,
+          visibleCount: Math.min(prev.visibleCount + 50, sampleData.length),
+        }));
     }
   };
-
-  const activeSnippet = snippetItems[snippetTab];
 
   const copySnippet = async () => {
     try {
       await navigator.clipboard.writeText(activeSnippet.code);
     } catch {
-      // no-op for browsers blocking clipboard access
+      // clipboard may be blocked in some environments
     }
   };
+
+  const toggleHosting = async (nextValue: boolean) => {
+    setToggleError(null);
+    setToggleLoading(true);
+
+    try {
+      const response = await fetch(`/api/apis/${apiId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isActive: nextValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update hosting status");
+      }
+
+      setFetchResult((prev) => ({
+        ...prev,
+        apiData: prev.apiData ? { ...prev.apiData, isActive: nextValue } : prev.apiData,
+      }));
+
+      onHostingStatusChanged?.();
+    } catch (err) {
+      setToggleError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setToggleLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ px: 4, py: 3, display: "flex", alignItems: "center", gap: 2 }}>
+        <CircularProgress size={20} sx={{ color: "#CFC7FF" }} />
+        <Typography sx={{ color: "rgba(244, 242, 255, 0.72)" }}>Loading API…</Typography>
+      </Box>
+    );
+  }
+
+  if (error || !apiData) {
+    return (
+      <Box sx={{ px: 4, py: 3 }}>
+        <Typography sx={{ color: "#f87171" }}>{error ?? "API not found."}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ px: 4, py: 3 }}>
@@ -150,16 +252,72 @@ export default function ApiView({ project, api }: ApiViewProps) {
             <Stack spacing={1.2}>
               <Typography sx={{ color: "#FFFFFF", fontWeight: 700, fontSize: "1.12rem" }}>API Details</Typography>
 
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: 1.5,
+                  border: apiData.isActive
+                    ? "1px solid rgba(74, 222, 128, 0.32)"
+                    : "1px solid rgba(248, 113, 113, 0.24)",
+                  background: apiData.isActive
+                    ? "rgba(74, 222, 128, 0.08)"
+                    : "rgba(248, 113, 113, 0.06)",
+                }}
+              >
+                <Stack spacing={0.6}>
+                  <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} spacing={1}>
+                    <Box>
+                      <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>
+                        {apiData.isActive ? "Hosting is ON" : "Hosting is OFF"}
+                      </Typography>
+                      <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.84rem" }}>
+                        {apiData.isActive
+                          ? "Requests to this path will return the stored mock rows."
+                          : "Requests to this path will return 404 until you turn hosting on."}
+                      </Typography>
+                    </Box>
+
+                    <FormControlLabel
+                      sx={{ mr: 0 }}
+                      control={
+                        <Switch
+                          checked={apiData.isActive}
+                          disabled={toggleLoading}
+                          onChange={(_, checked) => void toggleHosting(checked)}
+                        />
+                      }
+                      label={apiData.isActive ? "On" : "Off"}
+                    />
+                  </Stack>
+
+                  <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", fontSize: "0.82rem", wordBreak: "break-all" }}>
+                    Local runtime URL: {runtimeUrl || endpointPath || endpoint}
+                  </Typography>
+
+                  {toggleError && (
+                    <Typography sx={{ color: "#fca5a5", fontSize: "0.82rem" }}>
+                      {toggleError}
+                    </Typography>
+                  )}
+                </Stack>
+              </Box>
+
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                <Chip label={method} sx={{ backgroundColor: "#CFC7FF", color: "#1D163C", fontWeight: 800 }} />
+                <Chip label={method} sx={{ backgroundColor: methodStyle.bg, color: methodStyle.color, fontWeight: 800 }} />
                 <Typography sx={{ color: "rgba(244, 242, 255, 0.92)", wordBreak: "break-all" }}>{endpoint}</Typography>
               </Box>
+
+              {apiData.description && (
+                <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem" }}>
+                  {apiData.description}
+                </Typography>
+              )}
 
               <Grid container spacing={1.2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Auth</Typography>
-                    <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>Bearer Token</Typography>
+                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Method</Typography>
+                    <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{method}</Typography>
                   </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -170,14 +328,14 @@ export default function ApiView({ project, api }: ApiViewProps) {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Rate Limit</Typography>
-                    <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>120 req/min</Typography>
+                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Mock Rows</Typography>
+                    <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{sampleData.length}</Typography>
                   </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Mock Rows</Typography>
-                    <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{allRows.length}</Typography>
+                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Fields</Typography>
+                    <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{columns.length}</Typography>
                   </Paper>
                 </Grid>
               </Grid>
@@ -284,53 +442,58 @@ export default function ApiView({ project, api }: ApiViewProps) {
             }}
           >
             <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} spacing={1} sx={{ mb: 1.2 }}>
-              <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Generated Data (Infinite Table)</Typography>
+              <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Generated Data</Typography>
               <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.86rem" }}>
-                Showing {visibleRows.length} of {allRows.length} rows
+                Showing {visibleRows.length} of {sampleData.length} rows
               </Typography>
             </Stack>
 
-            <TableContainer
-              onScroll={handleTableScroll}
-              sx={{
-                maxHeight: 430,
-                borderRadius: 1.5,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                background: "rgba(18, 15, 35, 0.5)",
-              }}
-            >
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>ID</TableCell>
-                    <TableCell sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>Name</TableCell>
-                    <TableCell sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>Email</TableCell>
-                    <TableCell sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>Role</TableCell>
-                    <TableCell sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>City</TableCell>
-                    <TableCell sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>Created At</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {visibleRows.map((row) => (
-                    <TableRow key={row.id} hover>
-                      <TableCell sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>{row.id}</TableCell>
-                      <TableCell sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>{row.name}</TableCell>
-                      <TableCell sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>{row.email}</TableCell>
-                      <TableCell sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)", textTransform: "capitalize" }}>
-                        {row.role}
-                      </TableCell>
-                      <TableCell sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>{row.city}</TableCell>
-                      <TableCell sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>{row.createdAt}</TableCell>
+            {columns.length === 0 ? (
+              <Typography sx={{ color: "rgba(244, 242, 255, 0.56)", py: 2 }}>No sample data available.</Typography>
+            ) : (
+              <TableContainer
+                onScroll={handleTableScroll}
+                sx={{
+                  maxHeight: 430,
+                  borderRadius: 1.5,
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  background: "rgba(18, 15, 35, 0.5)",
+                }}
+              >
+                <Table stickyHeader size="small">
+                  <TableHead>
+                    <TableRow>
+                      {columns.map((col) => (
+                        <TableCell key={col} sx={{ background: "rgba(31, 27, 56, 0.98)", color: "#FFFFFF", fontWeight: 700 }}>
+                          {col}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {visibleRows.map((row, rowIndex) => (
+                      <TableRow key={rowIndex} hover>
+                        {columns.map((col) => (
+                          <TableCell key={col} sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>
+                            {String(row[col] ?? "")}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
 
-            {visibleCount < allRows.length && (
+            {visibleCount < sampleData.length && (
               <Button
                 variant="outlined"
-                onClick={() => setVisibleCount((prev) => Math.min(prev + 100, allRows.length))}
+                onClick={() =>
+                  setFetchResult((prev) => ({
+                    ...prev,
+                    visibleCount: Math.min(prev.visibleCount + 100, sampleData.length),
+                  }))
+                }
                 sx={{
                   mt: 1.2,
                   textTransform: "none",

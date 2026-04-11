@@ -16,14 +16,68 @@ const RequestSchema = z.object({
   recordCount: z.number().int().min(1).max(100).optional(),
 });
 
-function toApiBaseUrl(rawBaseUrl?: string | null): string {
-  const fallback = "https://api.mockyantra.dev";
+function buildValueForType(fieldName: string, schema: unknown, rowIndex: number): unknown {
+  const lower = fieldName.toLowerCase();
+  const type =
+    schema && typeof schema === "object" && "type" in (schema as Record<string, unknown>)
+      ? (schema as Record<string, unknown>).type
+      : "string";
 
-  if (!rawBaseUrl || rawBaseUrl.trim().length === 0) {
-    return fallback;
+  if (type === "number" || type === "integer") {
+    return rowIndex + 1;
   }
 
-  return rawBaseUrl.replace(/\/+$/, "");
+  if (type === "boolean") {
+    return rowIndex % 2 === 0;
+  }
+
+  if (lower.includes("email")) {
+    return `user${rowIndex + 1}@mockyantra.dev`;
+  }
+
+  if (lower.includes("id")) {
+    return rowIndex + 1;
+  }
+
+  if (lower.includes("date") || lower.includes("created")) {
+    return `2026-04-${String((rowIndex % 28) + 1).padStart(2, "0")}`;
+  }
+
+  return `${fieldName}-${rowIndex + 1}`;
+}
+
+function buildSampleDataFromSchema(
+  schema: Record<string, unknown>,
+  count: number
+): Array<Record<string, unknown>> {
+  const propertiesRaw = schema.properties;
+  const properties =
+    propertiesRaw && typeof propertiesRaw === "object"
+      ? (propertiesRaw as Record<string, unknown>)
+      : {};
+  const fields = Object.keys(properties);
+
+  if (fields.length === 0) {
+    return [];
+  }
+
+  return Array.from({ length: count }, (_, rowIndex) => {
+    const row: Record<string, unknown> = {};
+
+    for (const field of fields) {
+      row[field] = buildValueForType(field, properties[field], rowIndex);
+    }
+
+    return row;
+  });
+}
+
+function toApiBaseUrl(): string {
+  return "https://api.mockyantra.dev";
+}
+
+function normalizeProjectCode(rawProjectCode: string): string {
+  return rawProjectCode.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
 function normalizePath(path: string): string {
@@ -43,7 +97,7 @@ export async function POST(
 
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      select: { id: true, baseUrl: true },
+      select: { id: true, name: true, baseUrl: true },
     });
 
     if (!project) {
@@ -77,6 +131,9 @@ export async function POST(
       description = generated.description ?? "";
       responseSchema = generated.responseSchema;
       sampleData = generated.sampleData;
+    } else {
+      const requestedCount = input.recordCount ?? 10;
+      sampleData = buildSampleDataFromSchema(responseSchema, requestedCount);
     }
 
     if (!name || !endpointPath) {
@@ -86,13 +143,26 @@ export async function POST(
       );
     }
 
+    const projectCodeRows = await prisma.$queryRaw<Array<{ projectCode: string | null }>>`
+      SELECT projectCode
+      FROM Project
+      WHERE id = ${projectId}
+      LIMIT 1
+    `;
+
+    const projectCodeFromDb = projectCodeRows[0]?.projectCode ?? null;
+
     const normalizedPath = normalizePath(endpointPath);
-    const baseUrl = toApiBaseUrl(project.baseUrl);
-    const fullEndpoint = `${baseUrl}${normalizedPath}`;
+    const pathWithoutLeadingSlash = normalizedPath.replace(/^\/+/, "");
+    const fallbackFromName = normalizeProjectCode(project.name);
+    const projectCode = normalizeProjectCode(projectCodeFromDb ?? "") || fallbackFromName || project.id;
+    const routedEndpointPath = normalizePath(`/${projectCode}/${pathWithoutLeadingSlash}`);
+    const baseUrl = toApiBaseUrl();
+    const fullEndpoint = `${baseUrl}${routedEndpointPath}`;
     const responsePayload = {
       schema: responseSchema,
       sampleData,
-      endpointPath: normalizedPath,
+      endpointPath: routedEndpointPath,
     } as Prisma.InputJsonValue;
 
     const duplicate = await prisma.api.findFirst({

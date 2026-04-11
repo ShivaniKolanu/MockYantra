@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+const PROJECT_CODE_REGEX = /^[a-z0-9-]+$/;
+
 // GET all projects
 export async function GET() {
   try {
@@ -27,7 +29,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description, baseUrl } = body;
+    const { name, projectCode, description, baseUrl } = body;
 
     // Validation
     if (!name || name.trim().length === 0) {
@@ -37,9 +39,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedProjectCode = String(projectCode ?? "").trim().toLowerCase();
+
+    if (!normalizedProjectCode) {
+      return NextResponse.json(
+        { error: "Project ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!PROJECT_CODE_REGEX.test(normalizedProjectCode)) {
+      return NextResponse.json(
+        { error: "Project ID can only contain lowercase letters, numbers, and hyphens" },
+        { status: 400 }
+      );
+    }
+
+    const existingProject = await prisma.project.findFirst({
+      where: { projectCode: normalizedProjectCode },
+      select: { id: true },
+    });
+
+    if (existingProject) {
+      return NextResponse.json(
+        { error: "Project ID already exists" },
+        { status: 409 }
+      );
+    }
+
     const project = await prisma.project.create({
       data: {
         name: name.trim(),
+        projectCode: normalizedProjectCode,
         description: description?.trim() || null,
         baseUrl: baseUrl?.trim() || null,
       },

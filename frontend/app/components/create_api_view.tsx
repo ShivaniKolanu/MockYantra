@@ -8,7 +8,6 @@ import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import VisualBuilder from "./visual_builder";
 import AiGeneratorView from "./ai_generator_view";
-import CreateUsingCurlView from "./create_using_curl_view";
 
 type CreateApiViewProps = {
   projectId: string;
@@ -67,7 +66,6 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
         >
           <Tab label="AI Generator" />
           <Tab label="Visual Builder" />
-          <Tab label="Create using cURL" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
@@ -75,7 +73,6 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
           {activeTab === 1 && (
             <VisualBuilder projectId={projectId} />
           )}
-          {activeTab === 2 && <CreateUsingCurlView />}
         </Box>
       </Box>
     </Box>

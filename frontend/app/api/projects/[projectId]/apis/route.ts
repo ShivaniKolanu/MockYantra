@@ -13,7 +13,7 @@ const RequestSchema = z.object({
   responseSchema: z.record(z.string(), z.unknown()).optional(),
   aiPrompt: z.string().min(1).optional(),
   aiFields: z.string().optional(),
-  recordCount: z.number().int().min(1).max(100).optional(),
+  recordCount: z.number().int().min(1).max(500).optional(),
 });
 
 function buildValueForType(fieldName: string, schema: unknown, rowIndex: number): unknown {
@@ -125,10 +125,11 @@ export async function POST(
         recordCount: input.recordCount,
       });
 
-      name = generated.name;
-      method = generated.method;
-      endpointPath = generated.endpointPath;
-      description = generated.description ?? "";
+      name = input.name?.trim() || generated.name;
+      method = input.method ?? generated.method;
+      endpointPath = input.endpointPath?.trim() || generated.endpointPath;
+      const descriptionCandidate = input.description?.trim() || generated.description;
+      description = descriptionCandidate || "";
       responseSchema = generated.responseSchema;
       sampleData = generated.sampleData;
     } else {
@@ -155,7 +156,8 @@ export async function POST(
     const normalizedPath = normalizePath(endpointPath);
     const pathWithoutLeadingSlash = normalizedPath.replace(/^\/+/, "");
     const fallbackFromName = normalizeProjectCode(project.name);
-    const projectCode = normalizeProjectCode(projectCodeFromDb ?? "") || fallbackFromName || project.id;
+    const projectCodeFromLookup = normalizeProjectCode(projectCodeFromDb || "");
+    const projectCode = projectCodeFromLookup || fallbackFromName || project.id;
     const routedEndpointPath = normalizePath(`/${projectCode}/${pathWithoutLeadingSlash}`);
     const baseUrl = toApiBaseUrl();
     const fullEndpoint = `${baseUrl}${routedEndpointPath}`;

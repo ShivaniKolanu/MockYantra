@@ -35,25 +35,49 @@ function extractJson(text: string): string {
   return trimmed;
 }
 
-export async function generateApiFromPrompt(input: {
+type GenerationSeed = {
+  name: string;
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  endpointPath: string;
+  description: string;
+  responseSchema: Record<string, unknown>;
+};
+
+function isRecoverableGenerationError(error: unknown): boolean {
+  return error instanceof SyntaxError || error instanceof z.ZodError;
+}
+
+async function requestGeneratedSpec(params: {
+  ai: GoogleGenAI;
+  model: string;
   prompt: string;
   fields?: string;
-  recordCount?: number;
+  recordCount: number;
+  seed?: GenerationSeed;
 }): Promise<GeneratedApiSpec> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
-
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is missing in environment variables");
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
-  const recordCount = Math.max(1, Math.min(input.recordCount ?? 5, 50));
+  const { ai, model, prompt, fields, recordCount, seed } = params;
 
   const userPrompt = [
-    `User request: ${input.prompt}`,
-    input.fields ? `Preferred fields: ${input.fields}` : "",
-    `Generate ${recordCount} sample records.`,
+    `User request: ${prompt}`,
+    fields ? `Preferred fields: ${fields}` : "",
+    `Generate exactly ${recordCount} sample records.`,
+    seed
+      ? [
+          "Use this fixed API metadata and schema exactly as-is:",
+          JSON.stringify(
+            {
+              name: seed.name,
+              method: seed.method,
+              endpointPath: seed.endpointPath,
+              description: seed.description,
+              responseSchema: seed.responseSchema,
+            },
+            null,
+            2
+          ),
+          "Do not change metadata or schema. Only generate new sampleData rows.",
+        ].join("\n")
+      : "",
     "Return this exact JSON shape:",
     JSON.stringify(
       {
@@ -85,7 +109,7 @@ export async function generateApiFromPrompt(input: {
     config: {
       responseMimeType: "application/json",
       systemInstruction: SYSTEM_INSTRUCTIONS,
-      temperature: 0.3,
+      temperature: seed ? 0.2 : 0.3,
     },
   });
 
@@ -95,12 +119,125 @@ export async function generateApiFromPrompt(input: {
     throw new Error("Gemini returned an empty response");
   }
 
-  const parsed = JSON.parse(extractJson(rawText));
-  const validated = ApiFromPromptSchema.parse(parsed);
+  let validated: GeneratedApiSpec;
+
+  try {
+    const parsed = JSON.parse(extractJson(rawText));
+    validated = ApiFromPromptSchema.parse(parsed);
+  } catch (error) {
+    if (isRecoverableGenerationError(error)) {
+      throw error;
+    }
+
+    throw new Error("Gemini returned an invalid JSON payload");
+  }
 
   if (!validated.endpointPath.startsWith("/")) {
     validated.endpointPath = `/${validated.endpointPath}`;
   }
 
   return validated;
+}
+
+async function requestGeneratedSpecWithRetry(params: {
+  ai: GoogleGenAI;
+  model: string;
+  prompt: string;
+  fields?: string;
+  recordCount: number;
+  seed?: GenerationSeed;
+}): Promise<GeneratedApiSpec> {
+  const batchSizes = Array.from(
+    new Set([
+      params.recordCount,
+      Math.max(1, Math.ceil(params.recordCount / 2)),
+      Math.max(1, Math.ceil(params.recordCount / 4)),
+      25,
+      10,
+    ])
+  ).filter((size) => size <= params.recordCount);
+
+  let lastError: unknown;
+
+  for (const batchSize of batchSizes) {
+    try {
+      return await requestGeneratedSpec({
+        ...params,
+        recordCount: batchSize,
+      });
+    } catch (error) {
+      lastError = error;
+
+      if (!isRecoverableGenerationError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Failed to generate valid JSON from Gemini after retries");
+}
+
+export async function generateApiFromPrompt(input: {
+  prompt: string;
+  fields?: string;
+  recordCount?: number;
+}): Promise<GeneratedApiSpec> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is missing in environment variables");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  const targetCount = Math.max(1, Math.min(input.recordCount ?? 5, 500));
+  const batchSize = 100;
+
+  const firstBatchSize = Math.min(batchSize, targetCount);
+  const first = await requestGeneratedSpecWithRetry({
+    ai,
+    model,
+    prompt: input.prompt,
+    fields: input.fields,
+    recordCount: firstBatchSize,
+  });
+
+  if (targetCount <= first.sampleData.length) {
+    first.sampleData = first.sampleData.slice(0, targetCount);
+    return first;
+  }
+
+  const merged: GeneratedApiSpec = {
+    ...first,
+    sampleData: [...first.sampleData],
+  };
+
+  const seed: GenerationSeed = {
+    name: first.name,
+    method: first.method,
+    endpointPath: first.endpointPath,
+    description: first.description,
+    responseSchema: first.responseSchema,
+  };
+
+  while (merged.sampleData.length < targetCount) {
+    const remaining = targetCount - merged.sampleData.length;
+    const currentBatchSize = Math.min(batchSize, remaining);
+
+    const nextBatch = await requestGeneratedSpecWithRetry({
+      ai,
+      model,
+      prompt: input.prompt,
+      fields: input.fields,
+      recordCount: currentBatchSize,
+      seed,
+    });
+
+    merged.sampleData.push(...nextBatch.sampleData.slice(0, currentBatchSize));
+  }
+
+  merged.sampleData = merged.sampleData.slice(0, targetCount);
+  return merged;
 }

@@ -5,7 +5,7 @@ import { generateApiFromPrompt } from "@/lib/server/services/gemini";
 const RequestSchema = z.object({
   prompt: z.string().min(1),
   fields: z.string().optional(),
-  recordCount: z.number().int().min(1).max(100).optional(),
+  recordCount: z.number().int().min(1).max(500).optional(),
 });
 
 export async function POST(request: NextRequest) {

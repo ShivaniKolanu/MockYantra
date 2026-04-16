@@ -54,7 +54,7 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
           mode: "ai",
           aiPrompt: prompt.trim(),
           aiFields: fields.trim() || undefined,
-          recordCount: Number(recordCount) || 5,
+          recordCount: Math.min(500, Math.max(1, Number(recordCount) || 5)),
         }),
       });
 
@@ -136,7 +136,7 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
             type="number"
             value={recordCount}
             onChange={(e) => setRecordCount(e.target.value)}
-            inputProps={{ min: 1 }}
+            inputProps={{ min: 1, max: 500 }}
           />
         </Box>
 

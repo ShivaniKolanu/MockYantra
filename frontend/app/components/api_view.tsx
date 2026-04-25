@@ -53,7 +53,7 @@ const METHOD_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 function getMethodStyle(method: string) {
-  return METHOD_COLORS[method.toUpperCase()] ?? { bg: "#CFC7FF", color: "#1D163C" };
+  return METHOD_COLORS[method.toUpperCase()] ?? { bg: "#84E3CF", color: "#07352F" };
 }
 
 function getCodeSnippets(endpoint: string, method: string) {
@@ -105,7 +105,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
   const [toggleLoading, setToggleLoading] = useState(false);
   const [toggleError, setToggleError] = useState<string | null>(null);
 
-  // Derived — avoids any synchronous setState in the effect body
+  // Derived state avoids any synchronous setState in the effect body
   const loading = fetchedForId !== apiId;
 
   useEffect(() => {
@@ -213,8 +213,8 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
   if (loading) {
     return (
       <Box sx={{ px: 4, py: 3, display: "flex", alignItems: "center", gap: 2 }}>
-        <CircularProgress size={20} sx={{ color: "#CFC7FF" }} />
-        <Typography sx={{ color: "rgba(244, 242, 255, 0.72)" }}>Loading API…</Typography>
+        <CircularProgress size={20} sx={{ color: "#84E3CF" }} />
+        <Typography sx={{ color: "rgba(228, 255, 246, 0.72)" }}>Loading API...</Typography>
       </Box>
     );
   }
@@ -229,8 +229,8 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
 
   return (
     <Box sx={{ px: 4, py: 3 }}>
-      <Breadcrumbs aria-label="breadcrumb" separator="/" sx={{ color: "#F4F2FF" }}>
-        <Typography sx={{ color: "rgba(244, 242, 255, 0.82)", fontWeight: 500 }}>
+      <Breadcrumbs aria-label="breadcrumb" separator="/" sx={{ color: "#E9FFF8" }}>
+        <Typography sx={{ color: "rgba(228, 255, 246, 0.82)", fontWeight: 500 }}>
           {project}
         </Typography>
         <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>{api}</Typography>
@@ -270,7 +270,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                       <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>
                         {apiData.isActive ? "Hosting is ON" : "Hosting is OFF"}
                       </Typography>
-                      <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.84rem" }}>
+                      <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.84rem" }}>
                         {apiData.isActive
                           ? "Requests to this path will return the stored mock rows."
                           : "Requests to this path will return 404 until you turn hosting on."}
@@ -290,7 +290,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                     />
                   </Stack>
 
-                  <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", fontSize: "0.82rem", wordBreak: "break-all" }}>
+                  <Typography sx={{ color: "rgba(228, 255, 246, 0.78)", fontSize: "0.82rem", wordBreak: "break-all" }}>
                     Local runtime URL: {runtimeUrl || endpointPath || endpoint}
                   </Typography>
 
@@ -304,11 +304,11 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
                 <Chip label={method} sx={{ backgroundColor: methodStyle.bg, color: methodStyle.color, fontWeight: 800 }} />
-                <Typography sx={{ color: "rgba(244, 242, 255, 0.92)", wordBreak: "break-all" }}>{endpoint}</Typography>
+                <Typography sx={{ color: "rgba(228, 255, 246, 0.92)", wordBreak: "break-all" }}>{endpoint}</Typography>
               </Box>
 
               {apiData.description && (
-                <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem" }}>
+                <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.88rem" }}>
                   {apiData.description}
                 </Typography>
               )}
@@ -316,25 +316,25 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
               <Grid container spacing={1.2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Method</Typography>
+                    <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.82rem" }}>Method</Typography>
                     <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{method}</Typography>
                   </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Response</Typography>
+                    <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.82rem" }}>Response</Typography>
                     <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>JSON</Typography>
                   </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Mock Rows</Typography>
+                    <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.82rem" }}>Mock Rows</Typography>
                     <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{sampleData.length}</Typography>
                   </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <Paper elevation={0} sx={{ p: 1.2, borderRadius: 1.5, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.02)" }}>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem" }}>Fields</Typography>
+                    <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.82rem" }}>Fields</Typography>
                     <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>{columns.length}</Typography>
                   </Paper>
                 </Grid>
@@ -365,7 +365,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                 sx={{
                   borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
                   "& .MuiTab-root": {
-                    color: "rgba(244, 242, 255, 0.78)",
+                    color: "rgba(228, 255, 246, 0.78)",
                     textTransform: "none",
                     fontWeight: 700,
                     minHeight: 40,
@@ -375,7 +375,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                     color: "#FFFFFF",
                   },
                   "& .MuiTabs-indicator": {
-                    backgroundColor: "#CFC7FF",
+                    backgroundColor: "#84E3CF",
                     height: 3,
                     borderRadius: 2,
                   },
@@ -395,11 +395,11 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                 onClick={copySnippet}
                 sx={{
                   textTransform: "none",
-                  borderColor: "rgba(207, 199, 255, 0.58)",
-                  color: "#E8E3FF",
+                  borderColor: "rgba(132, 227, 207, 0.55)",
+                  color: "#D8FFF4",
                   "&:hover": {
-                    borderColor: "rgba(222, 216, 255, 0.9)",
-                    backgroundColor: "rgba(207, 199, 255, 0.14)",
+                    borderColor: "rgba(170, 245, 229, 0.9)",
+                    backgroundColor: "rgba(132, 227, 207, 0.14)",
                   },
                 }}
               >
@@ -414,8 +414,8 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                 p: 1.4,
                 borderRadius: 1.5,
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                backgroundColor: "rgba(15, 12, 30, 0.65)",
-                color: "rgba(244, 242, 255, 0.93)",
+                backgroundColor: "rgba(7, 28, 34, 0.68)",
+                color: "rgba(228, 255, 246, 0.93)",
                 overflow: "auto",
                 maxHeight: 320,
                 fontSize: "0.82rem",
@@ -425,7 +425,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
               {activeSnippet.code}
             </Box>
 
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.82rem", mt: 1 }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.82rem", mt: 1 }}>
               Helpful tip: use these snippets to test quickly before integrating with your app layer.
             </Typography>
           </Paper>
@@ -443,13 +443,13 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
           >
             <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "center" }} spacing={1} sx={{ mb: 1.2 }}>
               <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Generated Data</Typography>
-              <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.86rem" }}>
+              <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.86rem" }}>
                 Showing {visibleRows.length} of {sampleData.length} rows
               </Typography>
             </Stack>
 
             {columns.length === 0 ? (
-              <Typography sx={{ color: "rgba(244, 242, 255, 0.56)", py: 2 }}>No sample data available.</Typography>
+              <Typography sx={{ color: "rgba(228, 255, 246, 0.56)", py: 2 }}>No sample data available.</Typography>
             ) : (
               <TableContainer
                 onScroll={handleTableScroll}
@@ -474,7 +474,7 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                     {visibleRows.map((row, rowIndex) => (
                       <TableRow key={rowIndex} hover>
                         {columns.map((col) => (
-                          <TableCell key={col} sx={{ color: "rgba(244, 242, 255, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>
+                          <TableCell key={col} sx={{ color: "rgba(228, 255, 246, 0.9)", borderColor: "rgba(255,255,255,0.08)" }}>
                             {String(row[col] ?? "")}
                           </TableCell>
                         ))}
@@ -497,11 +497,11 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
                 sx={{
                   mt: 1.2,
                   textTransform: "none",
-                  borderColor: "rgba(207, 199, 255, 0.58)",
-                  color: "#E8E3FF",
+                  borderColor: "rgba(132, 227, 207, 0.55)",
+                  color: "#D8FFF4",
                   "&:hover": {
-                    borderColor: "rgba(222, 216, 255, 0.9)",
-                    backgroundColor: "rgba(207, 199, 255, 0.14)",
+                    borderColor: "rgba(170, 245, 229, 0.9)",
+                    backgroundColor: "rgba(132, 227, 207, 0.14)",
                   },
                 }}
               >
@@ -515,3 +515,4 @@ export default function ApiView({ project, api, apiId, onHostingStatusChanged }:
     </Box>
   );
 }
+

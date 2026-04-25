@@ -78,7 +78,7 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
           width: { xs: "92%", sm: 520 },
           borderRadius: 2,
           border: "1px solid rgba(255, 255, 255, 0.38)",
-          background: "linear-gradient(180deg, rgba(86, 74, 146, 0.94) 0%, rgba(60, 51, 112, 0.94) 100%)",
+          background: "linear-gradient(180deg, rgba(20, 116, 103, 0.94) 0%, rgba(14, 78, 91, 0.94) 100%)",
           boxShadow: "0 24px 60px rgba(12, 10, 28, 0.32)",
           p: 2.2,
           outline: "none",
@@ -177,13 +177,13 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
               sx={{
                 textTransform: "none",
                 fontWeight: 700,
-                backgroundColor: "#8C79D8",
-                color: "#F8F6FF",
+                backgroundColor: "#1FA38F",
+                color: "#F4FFFB",
                 "&:hover": {
-                  backgroundColor: "#7B67CC",
+                  backgroundColor: "#167567",
                 },
                 "&.Mui-disabled": {
-                  backgroundColor: "rgba(140, 121, 216, 0.45)",
+                  backgroundColor: "rgba(31, 163, 143, 0.45)",
                   color: "rgba(248, 246, 255, 0.65)",
                 },
               }}

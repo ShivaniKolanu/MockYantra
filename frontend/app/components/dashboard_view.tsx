@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
@@ -173,8 +173,8 @@ export default function DashboardView() {
   if (loading) {
     return (
       <Box sx={{ px: 4, py: 3, display: "flex", alignItems: "center", gap: 2 }}>
-        <CircularProgress size={20} sx={{ color: "#CFC7FF" }} />
-        <Typography sx={{ color: "rgba(244, 242, 255, 0.82)" }}>Loading dashboard...</Typography>
+        <CircularProgress size={20} sx={{ color: "#84E3CF" }} />
+        <Typography sx={{ color: "rgba(228, 255, 246, 0.82)" }}>Loading dashboard...</Typography>
       </Box>
     );
   }
@@ -217,12 +217,41 @@ export default function DashboardView() {
       <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "center" }} spacing={1.2}>
         <Box>
           <Typography sx={{ color: "#FFFFFF", fontSize: "1.35rem", fontWeight: 700 }}>Dashboard</Typography>
-          <Typography sx={{ color: "rgba(244, 242, 255, 0.82)", mt: 0.5 }}>
+          <Typography sx={{ color: "rgba(228, 255, 246, 0.82)", mt: 0.5 }}>
             Live overview of your projects, hosted APIs, and generated mock datasets.
           </Typography>
         </Box>
         <Chip
-          label="Live workspace data"
+          label={(
+            <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.9 }}>
+              <Box
+                component="span"
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  backgroundColor: "#4ADE80",
+                  boxShadow: "0 0 0 0 rgba(74, 222, 128, 0.85)",
+                  animation: "livePulse 1.4s ease-in-out infinite",
+                  "@keyframes livePulse": {
+                    "0%": {
+                      opacity: 1,
+                      boxShadow: "0 0 0 0 rgba(74, 222, 128, 0.85)",
+                    },
+                    "70%": {
+                      opacity: 0.5,
+                      boxShadow: "0 0 0 8px rgba(74, 222, 128, 0)",
+                    },
+                    "100%": {
+                      opacity: 1,
+                      boxShadow: "0 0 0 0 rgba(74, 222, 128, 0)",
+                    },
+                  },
+                }}
+              />
+              Live workspace data
+            </Box>
+          )}
           sx={{
             color: "#FFFFFF",
             fontWeight: 700,
@@ -244,7 +273,7 @@ export default function DashboardView() {
                 background: "linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)",
               }}
             >
-              <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", fontSize: "0.9rem" }}>{card.label}</Typography>
+              <Typography sx={{ color: "rgba(228, 255, 246, 0.78)", fontSize: "0.9rem" }}>{card.label}</Typography>
               <Typography sx={{ color: "#FFFFFF", fontSize: "1.7rem", fontWeight: 800, mt: 0.7 }}>{card.value}</Typography>
               <Typography sx={{ color: "#B9F5D0", fontWeight: 600, mt: 0.4, fontSize: "0.86rem" }}>{card.change}</Typography>
             </Paper>
@@ -264,7 +293,7 @@ export default function DashboardView() {
             }}
           >
             <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>APIs Created In Last 7 Days</Typography>
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem", mb: 1 }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.88rem", mb: 1 }}>
               Shows creation activity based on API timestamps in your current workspace.
             </Typography>
             <LineChart
@@ -297,7 +326,7 @@ export default function DashboardView() {
             }}
           >
             <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Method Distribution</Typography>
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem", mb: 1 }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.88rem", mb: 1 }}>
               Breakdown of stored APIs by HTTP method.
             </Typography>
             <PieChart
@@ -331,7 +360,7 @@ export default function DashboardView() {
             }}
           >
             <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>APIs Per Project</Typography>
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem", mb: 1 }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.88rem", mb: 1 }}>
               Shows how APIs are distributed across your current projects.
             </Typography>
             <BarChart
@@ -355,13 +384,13 @@ export default function DashboardView() {
             }}
           >
             <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Top APIs By Sample Rows</Typography>
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem", mb: 1.2 }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.88rem", mb: 1.2 }}>
               Ranked by how many generated rows are currently stored per API.
             </Typography>
 
             <Stack spacing={1.4}>
               {dashboardData.topApis.length === 0 ? (
-                <Typography sx={{ color: "rgba(244, 242, 255, 0.68)", fontSize: "0.9rem" }}>
+                <Typography sx={{ color: "rgba(228, 255, 246, 0.68)", fontSize: "0.9rem" }}>
                   No APIs found yet. Create one to populate the dashboard.
                 </Typography>
               ) : (
@@ -372,10 +401,10 @@ export default function DashboardView() {
                   return (
                     <Box key={api.id}>
                       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
-                        <Typography sx={{ color: "rgba(244, 242, 255, 0.92)", fontWeight: 600 }}>
+                        <Typography sx={{ color: "rgba(228, 255, 246, 0.92)", fontWeight: 600 }}>
                           {api.method} {api.name}
                         </Typography>
-                        <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", fontSize: "0.86rem" }}>
+                        <Typography sx={{ color: "rgba(228, 255, 246, 0.78)", fontSize: "0.86rem" }}>
                           {api.sampleCount.toLocaleString()} rows
                         </Typography>
                       </Stack>
@@ -392,8 +421,8 @@ export default function DashboardView() {
                           },
                         }}
                       />
-                      <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.8rem", mt: 0.45 }}>
-                        Project: {api.projectName} • {api.isActive ? "Hosted" : "Not hosted"}
+                      <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.8rem", mt: 0.45 }}>
+                        Project: {api.projectName}  -  {api.isActive ? "Hosted" : "Not hosted"}
                       </Typography>
                     </Box>
                   );
@@ -406,3 +435,4 @@ export default function DashboardView() {
     </Box>
   );
 }
+

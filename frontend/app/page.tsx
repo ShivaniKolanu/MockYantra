@@ -113,7 +113,7 @@ export default function Home() {
 
         {((currentView === "api" && (!selectedProject || !selectedApi)) ||
           (currentView === "create-api" && !selectedProject)) && (
-          <Typography sx={{ color: "rgba(244, 242, 255, 0.82)", px: 4, py: 3 }}>
+          <Typography sx={{ color: "rgba(228, 255, 246, 0.82)", px: 4, py: 3 }}>
             Select a project and API from the sidebar.
           </Typography>
         )}

@@ -41,7 +41,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${quintessential.variable} ${electrolize.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" style={{ background: "linear-gradient(135deg, #8F79D6 0%, #6F8FE0 46%, #5E4CB6 100%)" }}>
+      <body className="min-h-full flex flex-col" style={{ background: "linear-gradient(130deg, #0B4452 0%, #147D77 48%, #0A2F43 100%)" }}>
         <AppRouterCacheProvider>
           <Providers>{children}</Providers>
         </AppRouterCacheProvider>

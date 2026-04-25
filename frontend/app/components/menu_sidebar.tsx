@@ -31,7 +31,7 @@ type MenuSidebarProps = {
 type Project = {
     id: string;
     name: string;
-    apis: Array<{ id: string; name: string; isActive?: boolean }>;
+    apis: Array<{ id: string; name: string; method?: string; isActive?: boolean }>;
 };
 
 export default function MenuSidebar({
@@ -82,10 +82,10 @@ export default function MenuSidebar({
                     top: "64px",
                     width: 240,
                     height: "calc(100vh - 64px)",
-                    background: "rgba(36, 37, 72, 0.5)",
+                    background: "rgba(8, 44, 56, 0.56)",
                     backdropFilter: "blur(12px)",
                     borderRight: "1px solid rgba(255, 255, 255, 0.12)",
-                    color: "#E9E7F8",
+                    color: "#DDFCF4",
                 },
             }}
         >
@@ -185,14 +185,15 @@ export default function MenuSidebar({
                                         primaryTypographyProps={{
                                             fontSize: "1.15rem",
                                             fontWeight: selectedProject === project.id ? 700 : 600,
-                                            color: selectedProject === project.id ? "#FFFFFF" : "#E9E7F8",
+                                            color: selectedProject === project.id ? "#FFFFFF" : "#DDFCF4",
                                         }}
                                     />
                                 </AccordionSummary>
 
                                 <AccordionDetails sx={{ px: 0, pt: 0.5, pb: 0 }}>
                                     <List dense disablePadding>
-                                        {project.apis.map((api) => (
+                                        {project.apis.map((api) => {
+                                            return (
                                             <ListItem key={api.id} disablePadding>
                                                 <ListItemButton
                                                     onClick={() => {
@@ -233,7 +234,7 @@ export default function MenuSidebar({
                                                             fontWeight: currentView === "api" && selectedProject === project.id && selectedApi === api.id ? 600 : 500,
                                                         }}
                                                     />
-                                                    <Stack direction="row" alignItems="center" sx={{ ml: 1 }}>
+                                                    <Stack direction="row" alignItems="center" sx={{ ml: 1, flexShrink: 0 }}>
                                                         <Chip
                                                             size="small"
                                                             label={api.isActive ? "Active" : "Inactive"}
@@ -253,7 +254,8 @@ export default function MenuSidebar({
                                                     </Stack>
                                                 </ListItemButton>
                                             </ListItem>
-                                        ))}
+                                            );
+                                        })}
 
                                         <ListItem disablePadding sx={{ mt: 0.5 }}>
                                             <ListItemButton
@@ -266,7 +268,7 @@ export default function MenuSidebar({
                                                 sx={{
                                                     pl: 4.5,
                                                     borderRadius: 1.5,
-                                                    color: "#F4F2FF",
+                                                    color: "#E9FFF8",
                                                     border: "1px dashed rgba(255, 255, 255, 0.22)",
                                                     transition: "background-color 0.2s ease, border-color 0.2s ease",
                                                     "&:hover": {

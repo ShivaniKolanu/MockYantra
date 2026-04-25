@@ -251,14 +251,14 @@ export default function CreateUsingCurlView() {
               height: "100%",
               borderRadius: 2,
               border: "1px solid rgba(255, 255, 255, 0.14)",
-              background: "linear-gradient(180deg, rgba(38, 31, 73, 0.5) 0%, rgba(23, 20, 48, 0.5) 100%)",
+              background: "linear-gradient(180deg, rgba(9, 54, 69, 0.5) 0%, rgba(6, 37, 54, 0.5) 100%)",
             }}
           >
             <CardContent sx={{ p: 2.2 }}>
               <Stack spacing={1.6}>
                 <Box>
                   <Typography sx={{ color: "#FFFFFF", fontWeight: 700, mb: 0.6 }}>Paste your cURL command</Typography>
-                  <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.9rem" }}>
+                  <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.9rem" }}>
                     We parse method, endpoint, path params, query params, headers, and body.
                   </Typography>
                 </Box>
@@ -283,7 +283,7 @@ export default function CreateUsingCurlView() {
                 >
                   <Stack spacing={1.1}>
                     <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Generate Mock Data</Typography>
-                    <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.88rem" }}>
+                    <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.88rem" }}>
                       Choose how you want to describe the data that this API should generate.
                     </Typography>
 
@@ -300,17 +300,17 @@ export default function CreateUsingCurlView() {
                         "& .MuiToggleButton-root": {
                           textTransform: "none",
                           fontWeight: 700,
-                          color: "#E8E3FF",
-                          borderColor: "rgba(207, 199, 255, 0.4)",
+                          color: "#D8FFF4",
+                          borderColor: "rgba(132, 227, 207, 0.4)",
                           py: 0.9,
                         },
                         "& .MuiToggleButton-root.Mui-selected": {
-                          color: "#F8F6FF",
-                          backgroundColor: "#8C79D8",
-                          borderColor: "#8C79D8",
+                          color: "#F4FFFB",
+                          backgroundColor: "#1FA38F",
+                          borderColor: "#1FA38F",
                         },
                         "& .MuiToggleButton-root.Mui-selected:hover": {
-                          backgroundColor: "#7B67CC",
+                          backgroundColor: "#167567",
                         },
                       }}
                     >
@@ -358,10 +358,10 @@ export default function CreateUsingCurlView() {
                     sx={{
                       textTransform: "none",
                       fontWeight: 700,
-                      backgroundColor: "#8C79D8",
-                      color: "#F8F6FF",
+                      backgroundColor: "#1FA38F",
+                      color: "#F4FFFB",
                       "&:hover": {
-                        backgroundColor: "#7B67CC",
+                        backgroundColor: "#167567",
                       },
                     }}
                   >
@@ -373,11 +373,11 @@ export default function CreateUsingCurlView() {
                     sx={{
                       textTransform: "none",
                       fontWeight: 600,
-                      borderColor: "rgba(207, 199, 255, 0.58)",
-                      color: "#E8E3FF",
+                      borderColor: "rgba(132, 227, 207, 0.55)",
+                      color: "#D8FFF4",
                       "&:hover": {
-                        borderColor: "rgba(222, 216, 255, 0.9)",
-                        backgroundColor: "rgba(207, 199, 255, 0.14)",
+                        borderColor: "rgba(170, 245, 229, 0.9)",
+                        backgroundColor: "rgba(132, 227, 207, 0.14)",
                       },
                     }}
                   >
@@ -413,11 +413,11 @@ export default function CreateUsingCurlView() {
                         label={parsed.method}
                         sx={{
                           fontWeight: 800,
-                          color: "#1D163C",
-                          backgroundColor: "#CFC7FF",
+                          color: "#07352F",
+                          backgroundColor: "#84E3CF",
                         }}
                       />
-                      <Typography sx={{ color: "rgba(244, 242, 255, 0.92)", wordBreak: "break-all" }}>
+                      <Typography sx={{ color: "rgba(228, 255, 246, 0.92)", wordBreak: "break-all" }}>
                         {parsed.url}
                       </Typography>
                     </Box>
@@ -434,7 +434,7 @@ export default function CreateUsingCurlView() {
                           }}
                         >
                           <Typography sx={{ color: "#FFFFFF", fontWeight: 600, mb: 0.5 }}>Path</Typography>
-                          <Typography sx={{ color: "rgba(244, 242, 255, 0.88)", wordBreak: "break-all" }}>
+                          <Typography sx={{ color: "rgba(228, 255, 246, 0.88)", wordBreak: "break-all" }}>
                             {parsed.path || "/"}
                           </Typography>
                         </Paper>
@@ -453,13 +453,13 @@ export default function CreateUsingCurlView() {
                         >
                           <Typography sx={{ color: "#FFFFFF", fontWeight: 600, mb: 0.6 }}>Path Params</Typography>
                           {parsed.pathParams.length === 0 ? (
-                            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.9rem" }}>
+                            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.9rem" }}>
                               No path params found.
                             </Typography>
                           ) : (
                             <Stack spacing={0.5}>
                               {parsed.pathParams.map((param, index) => (
-                                <Typography key={`${param.key}-${index}`} sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                                <Typography key={`${param.key}-${index}`} sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                                   {param.key}: {param.value || "(no value)"}
                                 </Typography>
                               ))}
@@ -481,13 +481,13 @@ export default function CreateUsingCurlView() {
                         >
                           <Typography sx={{ color: "#FFFFFF", fontWeight: 600, mb: 0.6 }}>Query Params</Typography>
                           {parsed.queryParams.length === 0 ? (
-                            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.9rem" }}>
+                            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.9rem" }}>
                               No query params found.
                             </Typography>
                           ) : (
                             <Stack spacing={0.5}>
                               {parsed.queryParams.map((param, index) => (
-                                <Typography key={`${param.key}-${index}`} sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                                <Typography key={`${param.key}-${index}`} sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                                   {param.key}: {param.value || "(empty)"}
                                 </Typography>
                               ))}
@@ -509,13 +509,13 @@ export default function CreateUsingCurlView() {
                         >
                           <Typography sx={{ color: "#FFFFFF", fontWeight: 600, mb: 0.6 }}>Headers</Typography>
                           {parsed.headers.length === 0 ? (
-                            <Typography sx={{ color: "rgba(244, 242, 255, 0.72)", fontSize: "0.9rem" }}>
+                            <Typography sx={{ color: "rgba(228, 255, 246, 0.72)", fontSize: "0.9rem" }}>
                               No headers found.
                             </Typography>
                           ) : (
                             <Stack spacing={0.5}>
                               {parsed.headers.map((header, index) => (
-                                <Typography key={`${header.key}-${index}`} sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                                <Typography key={`${header.key}-${index}`} sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                                   {header.key}: {header.value || "(no value)"}
                                 </Typography>
                               ))}
@@ -562,20 +562,20 @@ export default function CreateUsingCurlView() {
                         >
                           <Typography sx={{ color: "#FFFFFF", fontWeight: 600, mb: 0.6 }}>Mock Data Plan</Typography>
                           <Stack spacing={0.5}>
-                            <Typography sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                            <Typography sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                               Mode: {dataMode === "manual" ? "Manual" : "Prompt"}
                             </Typography>
                             {dataMode === "manual" ? (
                               <>
-                                <Typography sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                                <Typography sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                                   Fields: {manualFields || "(not provided)"}
                                 </Typography>
-                                <Typography sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                                <Typography sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                                   Records: {recordCount || "(not provided)"}
                                 </Typography>
                               </>
                             ) : (
-                              <Typography sx={{ color: "rgba(244, 242, 255, 0.88)" }}>
+                              <Typography sx={{ color: "rgba(228, 255, 246, 0.88)" }}>
                                 Prompt: {dataPrompt || "(not provided)"}
                               </Typography>
                             )}

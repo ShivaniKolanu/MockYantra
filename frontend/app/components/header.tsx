@@ -57,7 +57,7 @@ export default function Header() {
                     alignItems: "center",
                     justifyContent: "space-between",
                     px: 3,
-                    background: "rgba(45, 45, 82, 0.58)",
+                    background: "rgba(7, 39, 48, 0.64)",
                     backdropFilter: "blur(12px)",
                     borderBottom: "1px solid rgba(255, 255, 255, 0.14)",
                     boxShadow: "0 8px 20px rgba(10, 8, 20, 0.22)",
@@ -76,7 +76,7 @@ export default function Header() {
                             objectPosition: "center",
                         }}
                     />
-                    <Typography variant="h6" component="h1" sx={{ color: "#F4F2FF", fontWeight: 700, fontSize: "1.45rem" }}>
+                    <Typography variant="h6" component="h1" sx={{ color: "#E9FFF8", fontWeight: 700, fontSize: "1.45rem" }}>
                         MockYantra
                     </Typography>
                 </Box>
@@ -91,7 +91,7 @@ export default function Header() {
                         borderRadius: 2,
                         fontSize: "1.175rem",
                         backgroundColor: "rgba(255, 255, 255, 0.18)",
-                        color: "#F4F2FF",
+                        color: "#E9FFF8",
                         "&:hover": {
                             backgroundColor: "rgba(255, 255, 255, 0.28)",
                         },

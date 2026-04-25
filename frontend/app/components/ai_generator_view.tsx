@@ -149,10 +149,10 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
             sx={{
               textTransform: "none",
               fontWeight: 700,
-              backgroundColor: "#8C79D8",
-              color: "#F8F6FF",
+              backgroundColor: "#1FA38F",
+              color: "#F4FFFB",
               "&:hover": {
-                backgroundColor: "#7B67CC",
+                backgroundColor: "#167567",
               },
             }}
           >
@@ -187,16 +187,16 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
                 {submissionStatus.title}
               </Typography>
 
-              <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.92rem" }}>
+              <Typography sx={{ color: "rgba(228, 255, 246, 0.9)", fontSize: "0.92rem" }}>
                 {submissionStatus.message}
               </Typography>
 
               {submissionStatus.kind === "success" && (
                 <Box sx={{ mt: 1 }}>
-                  <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.88rem" }}>
+                  <Typography sx={{ color: "rgba(228, 255, 246, 0.9)", fontSize: "0.88rem" }}>
                     Name: {submissionStatus.apiName}
                   </Typography>
-                  <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.88rem" }}>
+                  <Typography sx={{ color: "rgba(228, 255, 246, 0.9)", fontSize: "0.88rem" }}>
                     Route: {submissionStatus.method} {submissionStatus.endpoint}
                   </Typography>
                 </Box>
@@ -208,3 +208,4 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
     </Paper>
   );
 }
+

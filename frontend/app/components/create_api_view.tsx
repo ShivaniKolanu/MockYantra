@@ -19,14 +19,14 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
 
   return (
     <Box sx={{ px: 4, py: 3 }}>
-      <Breadcrumbs aria-label="breadcrumb" separator="/" sx={{ color: "#F4F2FF" }}>
-        <Typography sx={{ color: "rgba(244, 242, 255, 0.82)", fontWeight: 500 }}>
+      <Breadcrumbs aria-label="breadcrumb" separator="/" sx={{ color: "#E9FFF8" }}>
+        <Typography sx={{ color: "rgba(228, 255, 246, 0.82)", fontWeight: 500 }}>
           {projectName}
         </Typography>
         <Typography sx={{ color: "#FFFFFF", fontWeight: 700 }}>Create New API</Typography>
       </Breadcrumbs>
 
-      <Typography sx={{ color: "rgba(244, 242, 255, 0.82)", mt: 2 }}>
+      <Typography sx={{ color: "rgba(228, 255, 246, 0.82)", mt: 2 }}>
         Create API page placeholder content.
       </Typography>
 
@@ -35,7 +35,7 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
           mt: 3,
           borderRadius: 2,
           border: "1px solid rgba(255, 255, 255, 0.16)",
-          background: "rgba(20, 18, 40, 0.35)",
+          background: "rgba(6, 41, 52, 0.35)",
           backdropFilter: "blur(10px)",
           overflow: "hidden",
         }}
@@ -48,7 +48,7 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
             px: 1,
             borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
             "& .MuiTab-root": {
-              color: "rgba(244, 242, 255, 0.78)",
+              color: "rgba(228, 255, 246, 0.78)",
               textTransform: "none",
               fontSize: "0.98rem",
               fontWeight: 600,
@@ -58,7 +58,7 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
               color: "#FFFFFF",
             },
             "& .MuiTabs-indicator": {
-              backgroundColor: "#CFC7FF",
+              backgroundColor: "#84E3CF",
               height: 3,
               borderRadius: 2,
             },
@@ -78,3 +78,4 @@ export default function CreateApiView({ projectId, projectName }: CreateApiViewP
     </Box>
   );
 }
+

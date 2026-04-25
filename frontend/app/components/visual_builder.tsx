@@ -214,9 +214,9 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
           mb: 3,
           "& .MuiStep-root": { px: 1 },
           "& .MuiStepLabel-iconContainer": { pr: 1 },
-          "& .MuiStepLabel-label": { color: "rgba(244, 242, 255, 0.82)" },
+          "& .MuiStepLabel-label": { color: "rgba(228, 255, 246, 0.82)" },
           "& .MuiStepLabel-label.Mui-active": { color: "#FFFFFF" },
-          "& .MuiStepLabel-label.Mui-completed": { color: "#CFC7FF" },
+          "& .MuiStepLabel-label.Mui-completed": { color: "#84E3CF" },
         }}
       >
         <Step>
@@ -282,7 +282,7 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
 
           <Box>
             <Typography sx={{ color: "#FFFFFF", fontWeight: 700, mb: 1.5 }}>2. Headers</Typography>
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", mb: 1.5, fontSize: "0.92rem" }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.78)", mb: 1.5, fontSize: "0.92rem" }}>
               Example: Authorization - Bearer token required, x-api-key - API key for access.
             </Typography>
             <Stack spacing={1.25}>
@@ -325,11 +325,11 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
               sx={{
                 mt: 1.5,
                 textTransform: "none",
-                borderColor: "rgba(207, 199, 255, 0.58)",
-                color: "#E8E3FF",
+                borderColor: "rgba(132, 227, 207, 0.55)",
+                color: "#D8FFF4",
                 "&:hover": {
-                  borderColor: "rgba(222, 216, 255, 0.9)",
-                  backgroundColor: "rgba(207, 199, 255, 0.14)",
+                  borderColor: "rgba(170, 245, 229, 0.9)",
+                  backgroundColor: "rgba(132, 227, 207, 0.14)",
                 },
               }}
             >
@@ -422,11 +422,11 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
               sx={{
                 mt: 1.5,
                 textTransform: "none",
-                borderColor: "rgba(207, 199, 255, 0.58)",
-                color: "#E8E3FF",
+                borderColor: "rgba(132, 227, 207, 0.55)",
+                color: "#D8FFF4",
                 "&:hover": {
-                  borderColor: "rgba(222, 216, 255, 0.9)",
-                  backgroundColor: "rgba(207, 199, 255, 0.14)",
+                  borderColor: "rgba(170, 245, 229, 0.9)",
+                  backgroundColor: "rgba(132, 227, 207, 0.14)",
                 },
               }}
             >
@@ -440,7 +440,7 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
         <Stack spacing={2.5}>
           <Box>
             <Typography sx={{ color: "#FFFFFF", fontWeight: 700, mb: 0.8 }}>Data Generation Preferences</Typography>
-            <Typography sx={{ color: "rgba(244, 242, 255, 0.78)", mb: 1.4, fontSize: "0.92rem" }}>
+            <Typography sx={{ color: "rgba(228, 255, 246, 0.78)", mb: 1.4, fontSize: "0.92rem" }}>
               Describe the data you want and AI will generate realistic sample rows for this API.
             </Typography>
 
@@ -487,11 +487,11 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
           onClick={() => setActiveStep((prev) => prev - 1)}
           sx={{
             textTransform: "none",
-            borderColor: "rgba(207, 199, 255, 0.5)",
-            color: "#E8E3FF",
+            borderColor: "rgba(132, 227, 207, 0.5)",
+            color: "#D8FFF4",
             "&:hover": {
-              borderColor: "rgba(222, 216, 255, 0.9)",
-              backgroundColor: "rgba(207, 199, 255, 0.12)",
+              borderColor: "rgba(170, 245, 229, 0.9)",
+              backgroundColor: "rgba(132, 227, 207, 0.12)",
             },
             "&.Mui-disabled": {
               borderColor: "rgba(255, 255, 255, 0.2)",
@@ -508,10 +508,10 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
             onClick={() => setActiveStep((prev) => prev + 1)}
             sx={{
               textTransform: "none",
-              backgroundColor: "#8C79D8",
-              color: "#F8F6FF",
+              backgroundColor: "#1FA38F",
+              color: "#F4FFFB",
               "&:hover": {
-                backgroundColor: "#7B67CC",
+                backgroundColor: "#167567",
               },
             }}
           >
@@ -524,10 +524,10 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
             disabled={isSubmitting}
             sx={{
               textTransform: "none",
-              backgroundColor: "#8C79D8",
-              color: "#F8F6FF",
+              backgroundColor: "#1FA38F",
+              color: "#F4FFFB",
               "&:hover": {
-                backgroundColor: "#7B67CC",
+                backgroundColor: "#167567",
               },
             }}
           >
@@ -564,16 +564,16 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
             {submissionStatus.title}
           </Typography>
 
-          <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.92rem" }}>
+          <Typography sx={{ color: "rgba(228, 255, 246, 0.9)", fontSize: "0.92rem" }}>
             {submissionStatus.message}
           </Typography>
 
           {submissionStatus.kind === "success" && (
             <Box sx={{ mt: 1 }}>
-              <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.88rem" }}>
+              <Typography sx={{ color: "rgba(228, 255, 246, 0.9)", fontSize: "0.88rem" }}>
                 Name: {submissionStatus.apiName}
               </Typography>
-              <Typography sx={{ color: "rgba(244, 242, 255, 0.9)", fontSize: "0.88rem" }}>
+              <Typography sx={{ color: "rgba(228, 255, 246, 0.9)", fontSize: "0.88rem" }}>
                 Route: {submissionStatus.method} {submissionStatus.endpoint}
               </Typography>
             </Box>
@@ -583,3 +583,4 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
     </Paper>
   );
 }
+

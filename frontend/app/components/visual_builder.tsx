@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
@@ -197,15 +199,16 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 2,
-        borderRadius: 2,
-        border: "1px solid rgba(255, 255, 255, 0.14)",
-        background: "rgba(255, 255, 255, 0.04)",
-      }}
-    >
+    <>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          border: "1px solid rgba(255, 255, 255, 0.14)",
+          background: "rgba(255, 255, 255, 0.04)",
+        }}
+      >
       <Stepper
         activeStep={activeStep}
         sx={{
@@ -522,6 +525,7 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
             variant="contained"
             onClick={handleCreateApi}
             disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={16} thickness={6} sx={{ color: "#F4FFFB" }} /> : undefined}
             sx={{
               textTransform: "none",
               backgroundColor: "#1FA38F",
@@ -580,7 +584,23 @@ export default function VisualBuilder({ projectId }: VisualBuilderProps) {
           )}
         </Paper>
       )}
-    </Paper>
+      </Paper>
+
+      <Backdrop
+        open={isSubmitting}
+        sx={{
+          zIndex: (theme) => theme.zIndex.modal + 2,
+          color: "#F4FFFB",
+          backgroundColor: "rgba(3, 22, 31, 0.55)",
+          backdropFilter: "blur(2px)",
+        }}
+      >
+        <Stack spacing={1} alignItems="center">
+          <CircularProgress size={34} thickness={5.5} sx={{ color: "#84E3CF" }} />
+          <Typography sx={{ color: "#E9FFF8", fontWeight: 700 }}>Creating API...</Typography>
+        </Stack>
+      </Backdrop>
+    </>
   );
 }
 

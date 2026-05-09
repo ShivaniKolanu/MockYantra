@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -90,16 +92,17 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        border: "1px solid rgba(255, 255, 255, 0.14)",
-        background: "rgba(255, 255, 255, 0.04)",
-      }}
-    >
-      <Stack spacing={2.2}>
+    <>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          border: "1px solid rgba(255, 255, 255, 0.14)",
+          background: "rgba(255, 255, 255, 0.04)",
+        }}
+      >
+        <Stack spacing={2.2}>
         <Box>
           <Typography sx={{ color: "#FFFFFF", fontWeight: 700, mb: 0.8 }}>
             Describe your API and data
@@ -143,7 +146,7 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
         <Box>
           <Button
             variant="contained"
-            startIcon={<AutoAwesomeIcon />}
+            startIcon={isSubmitting ? <CircularProgress size={16} thickness={6} sx={{ color: "#F4FFFB" }} /> : <AutoAwesomeIcon />}
             onClick={handleCreateApi}
             disabled={isSubmitting}
             sx={{
@@ -156,7 +159,7 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
               },
             }}
           >
-            {isSubmitting ? "Creating..." : "Create API & Generate Data"}
+            {isSubmitting ? "Creating & Generating Data..." : "Create API & Generate Data"}
           </Button>
         </Box>
 
@@ -204,8 +207,24 @@ export default function AiGeneratorView({ projectId }: AiGeneratorViewProps) {
             </CardContent>
           </Card>
         )}
-      </Stack>
-    </Paper>
+        </Stack>
+      </Paper>
+
+      <Backdrop
+        open={isSubmitting}
+        sx={{
+          zIndex: (theme) => theme.zIndex.modal + 2,
+          color: "#F4FFFB",
+          backgroundColor: "rgba(3, 22, 31, 0.55)",
+          backdropFilter: "blur(2px)",
+        }}
+      >
+        <Stack spacing={1} alignItems="center">
+          <CircularProgress size={34} thickness={5.5} sx={{ color: "#84E3CF" }} />
+          <Typography sx={{ color: "#E9FFF8", fontWeight: 700 }}>Creating API...</Typography>
+        </Stack>
+      </Backdrop>
+    </>
   );
 }
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -18,7 +19,7 @@ type AddProjectPayload = {
 type AddProjectModalProps = {
   open: boolean;
   onClose: () => void;
-  onCreate?: (payload: AddProjectPayload) => void;
+  onCreate?: (payload: AddProjectPayload) => void | Promise<void>;
 };
 
 export default function AddProjectModal({ open, onClose, onCreate }: AddProjectModalProps) {
@@ -26,6 +27,7 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
   const [projectCode, setProjectCode] = useState("");
   const [description, setDescription] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   const isNameValid = useMemo(() => name.trim().length > 0, [name]);
   const isProjectCodeValid = useMemo(() => /^[a-z0-9-]+$/.test(projectCode.trim()), [projectCode]);
@@ -38,22 +40,31 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
   };
 
   const handleClose = () => {
+    if (isCreating) {
+      return;
+    }
     resetForm();
     onClose();
   };
 
-  const handleCreate = () => {
-    if (!isNameValid || !isProjectCodeValid) {
+  const handleCreate = async () => {
+    if (!isNameValid || !isProjectCodeValid || isCreating) {
       return;
     }
 
-    onCreate?.({
-      name: name.trim(),
-      projectCode: projectCode.trim().toLowerCase(),
-      description: description.trim(),
-      baseUrl: baseUrl.trim(),
-    });
-    handleClose();
+    setIsCreating(true);
+
+    try {
+      await onCreate?.({
+        name: name.trim(),
+        projectCode: projectCode.trim().toLowerCase(),
+        description: description.trim(),
+        baseUrl: baseUrl.trim(),
+      });
+      handleClose();
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -158,6 +169,7 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
             <Button
               variant="outlined"
               onClick={handleClose}
+              disabled={isCreating}
               sx={{
                 textTransform: "none",
                 borderColor: "rgba(255, 255, 255, 0.56)",
@@ -172,7 +184,7 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
             </Button>
             <Button
               variant="contained"
-              disabled={!isNameValid || !isProjectCodeValid}
+              disabled={!isNameValid || !isProjectCodeValid || isCreating}
               onClick={handleCreate}
               sx={{
                 textTransform: "none",
@@ -188,7 +200,14 @@ export default function AddProjectModal({ open, onClose, onCreate }: AddProjectM
                 },
               }}
             >
-              Create Project
+              {isCreating ? (
+                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+                  <CircularProgress size={16} thickness={6} sx={{ color: "#F4FFFB" }} />
+                  Creating...
+                </Box>
+              ) : (
+                "Create Project"
+              )}
             </Button>
           </Box>
         </Stack>

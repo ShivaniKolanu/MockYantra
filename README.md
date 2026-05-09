@@ -133,3 +133,7 @@ Potential next upgrades:
 - auth and rate limiting,
 - containerized deployment.
 
+## Disclaimer
+
+All project names, sample data, endpoints, and scenarios included in this repository are fictional and provided only for technical demonstration and educational use. Any resemblance to real companies, products, or services is purely coincidental.
+

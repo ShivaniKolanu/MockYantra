@@ -137,3 +137,5 @@ Potential next upgrades:
 
 All project names, sample data, endpoints, and scenarios included in this repository are fictional and provided only for technical demonstration and educational use. Any resemblance to real companies, products, or services is purely coincidental.
 
+This project is licensed under the MIT License. See LICENSE for details.
+
